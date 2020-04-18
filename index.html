@@ -1,0 +1,1044 @@
+<!-- based on the code from this repo: https://github.com/magenta/magenta-demos/blob/master/sketch-rnn-js/ -->
+<!-- Also based on index.html from this demo: https://magenta.tensorflow.org/assets/sketch_rnn_demo/index.html -->
+<html>
+<head>
+
+  <title>dick-rnn</title>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <meta name="author" content="dickrnn">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400" rel="stylesheet">
+  <!--  Essential META Tags -->
+  <meta property="og:title" content="dick-rnn">
+  <meta property="og:description" content="a neural network trained to draw dicks">
+  <meta property="og:image" content="https://dickrnn.github.io/card/dick_card_rect.png">
+  <meta property="og:url" content="https://dickrnn.github.io/">
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="dick-rnn">
+  <meta name="twitter:description" content="a neural network trained to draw dicks">
+  <meta property="og:site_name" content="dick-rnn">
+  <meta name="twitter:image" content="https://dickrnn.github.io/card/dick_card_square2.png">
+
+	<style>
+	head, body {
+	  margin: 0;
+	  padding: 0;
+		font-family: 'Roboto Mono', monospace;
+	}
+
+
+	#ui {
+		top: 0;
+    position: fixed;
+    left: 0;
+    padding: 10px;
+		width: 100%;
+	}
+
+	#ui button {
+		font-family: 'Roboto Mono', monospace;
+		border: 0px;
+    height: 36px;
+    min-width: 36px;
+    background-size: 36px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+		padding-left: 40px;
+    font-size: 20px;
+		color: #555;
+		opacity: 0.7;
+		font-weight: 300;
+		position: fixed;
+		top: 20px;
+	}
+
+	#ui button:hover{
+		color:black;
+		opacity: 0.9;
+	}
+
+	#info {
+		background-image: url('https://www.gstatic.com/images/icons/material/system/2x/power_settings_new_black_36dp.png');
+	}
+	#shuffle {
+		background-image: url('https://www.gstatic.com/images/icons/material/system/2x/shuffle_black_36dp.png');
+		left:108px;
+	}
+	#clear {
+		background-image: url('https://www.gstatic.com/images/icons/material/system/2x/delete_black_36dp.png');
+		left:118px;
+	}
+	#share {
+		background-image: url('https://www.gstatic.com/images/icons/material/system/2x/save_black_36dp.png');
+		right:0px;
+	}
+
+	#model_selector_wrap {
+		display: table;
+		margin:0 auto;
+		padding-top: 7px;
+	}
+	#model_selector {
+		/* color: rgba(0, 0, 0, 0.4); */
+    border: 1px solid #d6d6d6;
+    border-radius: 0px;
+    background: transparent;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 15px;
+    display: none;
+    /* text-decoration: underline; */
+	}
+
+	#loading_text {
+		text-align: left;
+		width: 100%;
+		position: absolute;
+		top: 90px;
+	}
+
+	@media only screen and (max-width : 667px) {
+		#model_selector_wrap{
+			position: relative;
+			top: 30px;
+			display: block;
+		}
+		#ui button{
+			height:24px;
+			background-size:24px;
+			font-size:17px;
+			padding-left: 30px;
+		}
+	}
+	#sketch canvas {
+	}
+
+	</style>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163494039-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-163494039-1');
+  </script>
+
+
+  <script language="javascript" type="text/javascript" src="json/dick.gen.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/mobile-detect.js/0.4.1/mobile-detect.min.js"></script>
+	<script language="javascript" type="text/javascript" src="lib/p5.min.js"></script>
+	<script language="javascript" type="text/javascript" src="lib/p5.dom.min.js"></script>
+	<script language="javascript" type="text/javascript" src="lib/numjs.js"></script>
+	<script language="javascript" type="text/javascript" src="lib/sketch_rnn.js"></script>
+
+</head>
+<body>
+	<div id="sketch"></div>
+	<div id="ui">
+		<div id="model_selector_wrap">
+			<select id="model_selector"></select>
+		</div>
+		<button id="info">info</button>
+		<button id="clear">clear</button>
+		<!--<button id="shuffle">random</button>-->
+		<button id="share"></button>
+
+		<div id="loading_text">
+		</div>
+	</div>
+</body>
+
+  <!-- <script language="javascript" type="text/javascript" src="https://storage.googleapis.com/quickdraw-models/sketchRNN/models/ant.gen.js"></script> -->
+  <script language="javascript" type="text/javascript">
+  // Copyright 2017 Google Inc.
+  //
+  // Licensed under the Apache License, Version 2.0 (the "License");
+  // you may not use this file except in compliance with the License.
+  // You may obtain a copy of the License at
+  //
+  // http://www.apache.org/licenses/LICENSE-2.0
+  //
+  // Unless required by applicable law or agreed to in writing, software
+  // distributed under the License is distributed on an "AS IS" BASIS,
+  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  // implied. See the License for the specific language governing
+  // permissions and limitations under the License.
+  /**
+   * Author: David Ha <hadavid@google.com>
+   *
+   * @fileoverview Utility functions for managing the classes of drawings
+   */
+
+  function organize_class_list(good_list) {
+    var good_list_mode = 0;
+    if (typeof good_list === "number") {
+      good_list_mode = good_list;
+    }
+    var list1 = [
+    'dick']
+    return list1;
+  }
+
+  function word_in_class_list(w, class_list) {
+    for (var i=0;i<class_list.length;i++) {
+      if (class_list[i] == w) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  }
+
+  // Copyright 2017 Google Inc.
+  //
+  // Licensed under the Apache License, Version 2.0 (the "License");
+  // you may not use this file except in compliance with the License.
+  // You may obtain a copy of the License at
+  //
+  // http://www.apache.org/licenses/LICENSE-2.0
+  //
+  // Unless required by applicable law or agreed to in writing, software
+  // distributed under the License is distributed on an "AS IS" BASIS,
+  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  // implied. See the License for the specific language governing
+  // permissions and limitations under the License.
+  /**
+   * Author: David Ha <hadavid@google.com>
+   *
+   * @fileoverview Basic p5.js sketch to show how to use sketch-rnn
+   * to finish the user's incomplete drawing, and loop through different
+   * endings automatically.
+   */
+var sketch = function( p ) {
+  "use strict";
+
+  var startingStrokesData = [
+  [[0,0,1,0,0],[-6,0,1,0,0],[-8,1,1,0,0],[-5,11,1,0,0],[0,18,1,0,0],[1,19,1,0,0],[16,9,1,0,0],[29,1,1,0,0],[25,-13,1,0,0],[10,-15,1,0,0],[-3,-22,1,0,0],[-19,-18,1,0,0],[-17,-5,1,0,0],[-11,-1,1,0,0],[-7,2,1,0,0],[-3,4,0,1,0]],
+  [[0,0,1,0,0],[-8,0,1,0,0],[-18,3,1,0,0],[-14,15,1,0,0],[-6,22,1,0,0],[0,27,1,0,0],[4,23,1,0,0],[17,19,1,0,0],[25,9,1,0,0],[29,2,1,0,0],[28,-10,1,0,0],[22,-18,1,0,0],[8,-21,1,0,0],[0,-28,1,0,0],[-12,-26,1,0,0],[-21,-18,1,0,0],[-21,-9,1,0,0],[-15,-3,1,0,0],[-14,-1,1,0,0],[-12,0,1,0,0],[-9,1,1,0,0],[-4,2,1,0,0],[-2,4,0,1,0]],
+  [[0,0,1,0,0],[-17,0,1,0,0],[-18,6,1,0,0],[-25,25,1,0,0],[-21,40,1,0,0],[-5,43,1,0,0],[0,47,1,0,0],[15,40,1,0,0],[29,33,1,0,0],[40,30,1,0,0],[43,18,1,0,0],[44,5,1,0,0],[47,-2,1,0,0],[31,-12,1,0,0],[21,-17,1,0,0],[10,-23,1,0,0],[3,-23,1,0,0],[0,-39,1,0,0],[-1,-37,1,0,0],[-8,-24,1,0,0],[-12,-15,1,0,0],[-17,-12,1,0,0],[-22,-13,1,0,0],[-25,-14,1,0,0],[-22,-12,1,0,0],[-17,-8,1,0,0],[-18,-9,1,0,0],[-30,-10,1,0,0],[-9,-4,1,0,0],[-9,-3,1,0,0],[-13,0,1,0,0],[-1,-1,0,1,0]],
+  [[0,0,1,0,0],[0,-2,1,0,0],[-2,-18,1,0,0],[-6,-22,1,0,0],[-10,-34,1,0,0],[-7,-49,1,0,0],[-6,-73,1,0,0],[-1,-63,1,0,0],[1,-37,1,0,0],[11,-43,1,0,0],[11,-38,1,0,0],[8,-19,1,0,0],[6,-12,1,0,0],[6,-6,1,0,0],[6,-2,1,0,0],[9,-1,1,0,0],[7,1,1,0,0],[7,6,1,0,0],[10,10,1,0,0],[18,28,1,0,0],[17,38,1,0,0],[12,43,1,0,0],[10,58,1,0,0],[7,46,1,0,0],[4,38,1,0,0],[3,30,1,0,0],[2,23,1,0,0],[1,16,1,0,0],[2,20,1,0,0],[0,43,1,0,0],[1,6,1,0,0],[0,13,0,1,0]],
+  [[0,0,1,0,0],[0,-22,1,0,0],[-6,-24,1,0,0],[-31,-23,1,0,0],[-47,-18,1,0,0],[-40,3,1,0,0],[-25,32,1,0,0],[-4,34,1,0,0],[3,35,1,0,0],[24,40,1,0,0],[25,19,1,0,0],[13,5,1,0,0],[2,2,1,0,0],[-8,0,1,0,0],[-29,6,1,0,0],[-26,28,1,0,0],[-13,45,1,0,0],[-1,43,1,0,0],[23,44,1,0,0],[65,27,1,0,0],[49,1,1,0,0],[31,-10,1,0,0],[12,-12,1,0,0],[7,-9,1,0,0],[7,-11,0,1,0]],
+  [[0,0,1,0,0],[-4,-3,1,0,0],[-12,-2,1,0,0],[-14,0,1,0,0],[-16,12,1,0,0],[-14,21,1,0,0],[-10,26,1,0,0],[-6,26,1,0,0],[0,23,1,0,0],[21,28,1,0,0],[41,20,1,0,0],[68,11,1,0,0],[64,-4,1,0,0],[33,-16,1,0,0],[12,-9,1,0,0],[3,-2,1,0,0],[-1,6,1,0,0],[0,13,1,0,0],[9,15,1,0,0],[20,13,1,0,0],[39,6,1,0,0],[45,1,1,0,0],[40,-3,1,0,0],[30,-14,1,0,0],[17,-21,1,0,0],[9,-21,1,0,0],[1,-24,1,0,0],[-13,-25,1,0,0],[-31,-26,1,0,0],[-30,-19,1,0,0],[-17,-7,1,0,0],[-11,-4,1,0,0],[-3,-2,1,0,0],[-2,-1,0,1,0]],
+  [[0,0,1,0,0],[-9,0,1,0,0],[-9,4,1,0,0],[-12,16,1,0,0],[-9,20,1,0,0],[-6,21,1,0,0],[0,22,1,0,0],[3,17,1,0,0],[10,16,1,0,0],[13,13,1,0,0],[19,9,1,0,0],[25,5,1,0,0],[27,0,1,0,0],[26,-7,1,0,0],[19,-16,1,0,0],[11,-16,1,0,0],[6,-14,1,0,0],[3,-15,1,0,0],[0,-3,1,0,0],[0,5,1,0,0],[1,7,1,0,0],[2,10,1,0,0],[6,12,1,0,0],[8,9,1,0,0],[14,7,1,0,0],[17,4,1,0,0],[15,1,1,0,0],[18,-4,1,0,0],[13,-11,1,0,0],[10,-14,1,0,0],[6,-14,1,0,0],[2,-17,1,0,0],[0,-23,1,0,0],[-7,-23,1,0,0],[-11,-18,1,0,0],[-12,-12,1,0,0],[-10,-7,1,0,0],[-9,-5,1,0,0],[-9,-3,1,0,0],[-1,1,0,1,0]],
+  [[0,0,1,0,0],[0,-2,1,0,0],[-10,-5,1,0,0],[-17,-1,1,0,0],[-31,1,1,0,0],[-31,20,1,0,0],[-28,36,1,0,0],[-14,37,1,0,0],[-2,38,1,0,0],[12,35,1,0,0],[28,26,1,0,0],[45,25,1,0,0],[48,14,1,0,0],[55,-1,1,0,0],[63,-22,1,0,0],[36,-24,1,0,0],[15,-20,1,0,0],[5,-12,1,0,0],[0,-7,1,0,0],[0,16,1,0,0],[5,18,1,0,0],[27,29,1,0,0],[35,20,1,0,0],[43,13,1,0,0],[48,4,1,0,0],[43,-2,1,0,0],[35,-21,1,0,0],[23,-23,1,0,0],[14,-20,1,0,0],[5,-16,1,0,0],[-6,-33,1,0,0],[-26,-52,1,0,0],[-25,-41,1,0,0],[-41,-45,1,0,0],[-25,-14,1,0,0],[-20,-7,1,0,0],[-13,-1,1,0,0],[-9,0,0,1,0]],
+  [[0,0,1,0,0],[87,0,1,0,0],[69,11,1,0,0],[80,45,1,0,0],[57,51,1,0,0],[26,33,1,0,0],[20,31,1,0,0],[12,32,1,0,0],[8,30,1,0,0],[5,37,1,0,0],[3,33,1,0,0],[0,50,0,1,0]],
+  ];
+
+  var startingStrokes;
+  var class_list = organize_class_list();
+
+  // sketch_rnn model
+  var model_loaded = false;
+  var model;
+  var model_data;
+  var temperature = 0.4;
+  var refresh_count = 1;
+
+  var modelPdf; // store all the parameters of a mixture-density distribution
+  var model_state, model_state_orig;
+  var modelStrokes = []; // keep track of the strokes the model drew
+
+  var modelPen = Pen();
+
+  function Pen() {
+    var state = {
+      active: false,
+      x: 0, y: 0,
+      dx: 0, dy: 0,
+      down: 1, up: 0, end: 0,
+      prevDown: 1, prevUp: 0, prevEnd: 0
+    }
+    state.updateCurrent = function(stroke) {
+      state.dx = stroke[0]
+      state.dy = stroke[1]
+      // we update the previous by default
+      state.updateCurrentPen(stroke.slice(2, 5))
+    }
+    state.updatePrev = function(stroke) {
+      state.dx = stroke[0]
+      state.dy = stroke[1]
+      // we update the previous by default
+      state.updatePrevPen(stroke.slice(2, 5))
+    }
+    state.updateCurrentPen = function(array) {
+      state.down = array[0]
+      state.up = array[1]
+      state.end = array[2]
+    }
+    state.updatePrevPen = function(array) {
+      state.prevDown = array[0]
+      state.prevUp = array[1]
+      state.prevEnd = array[2]
+    }
+    state.getStroke = function() {
+      return [state.dx, state.dy, state.down, state.up, state.end]
+    }
+    state.getCurrentPen = function() {
+      return [ state.down, state.up, state.end]
+    }
+    state.getPrevPen = function() {
+      return [ state.prevDown, state.prevUp, state.prevEnd]
+    }
+    return state;
+  }
+
+
+  // variables for the sketch input interface.
+  var userPen = {
+    currentState: 0,
+    prevState: 0,
+  }
+  var x, y; // absolute coordinates on the screen of where the pen is
+  var start_x, start_y;
+  var has_started; // set to true after user starts writing.
+  var just_finished_line;
+  var epsilon = 1.0; // to ignore data from user's pen staying in one spot.
+  var raw_lines;
+  var current_raw_line;
+  var strokes;
+  var current_strokes;
+  var final_strokes = null;
+  var line_color, predict_line_color;
+  var line_color_alpha = 64;
+  var final_color_alpha = 192;
+  // demo strokes
+  var startingStrokeIndex;
+  var demo_finished = false;
+  var last_time; // for keeping track of drawing speed
+  var smallPause = false;
+
+  // UI
+  var screen_width, screen_height, temperature_slider;
+  var line_width = 10;
+  var screen_scale_factor = 2.0;
+
+  // dom
+  var reset_button, model_sel, random_model_button;
+  var text_title, text_temperature;
+  var changing_model_lock = true;
+  var restarting_model_lock = false;
+  var restarting_model_lock_count = 0;
+  var restarting_model_lock_frames = 30;
+  var clear_text_color, random_text_color;
+  var clear_text_background, random_text_background;
+  var canvas;
+  var title_text = "sketch-rnn predictor.";
+  var old_title_text = "sketch-rnn";
+  var run_encode_strokes;
+
+  var select_dom;
+
+  // tracking mouse  touchpad
+  var tracking = {
+    down: false,
+    x: 0,
+    y: 0
+  };
+
+  // mobile
+  var md, mobile_mode = false;
+
+  function format_title_text(name) {
+    name = name.split('_').join(' ');
+    var c = name[0];
+
+    /*
+    var a = ' a ';
+    var c = name[0];
+    if (c === 'a' || c === 'e' || c === 'i' || c === 'o' || c === 'u') {
+      a = ' an ';
+    }
+    */
+
+    return "";
+  };
+
+  function set_title_text(new_text) {
+    title_text = new_text.split('_').join(' ');
+    document.getElementById("loading_text").innerText = title_text;
+  };
+
+  var draw_example = function(example, start_x, start_y, line_color, prev_pen_override) {
+    var i, j;
+    var x=start_x, y=start_y;
+    var dx, dy;
+    var pen_down, pen_up, pen_end;
+    var prev_pen = [1, 0, 0];
+
+    if (Array.isArray(prev_pen_override)) {
+      penState = prev_pen_override;
+    }
+
+    p.curveTightness(0.5);
+
+    var lines = [];
+    var line = [];
+    var pt;
+
+    line.push([x, y]);
+
+    for(i=0;i<example.length;i++) {
+      // sample the next pen's states from our probability distribution
+      [dx, dy, pen_down, pen_up, pen_end] = example[i];
+
+      if (prev_pen[2] == 1) { // end of drawing.
+        break;
+      }
+
+      x += dx;
+      y += dy;
+
+      // only draw on the paper if the pen is touching the paper
+      if (prev_pen[0] == 1) {
+        line.push([x, y]);
+      } else {
+        lines.push(line);
+        line = [];
+        line.push([x, y]);
+      }
+
+      // update the previous pen's state to the current one we just sampled
+      prev_pen = [pen_down, pen_up, pen_end];
+    }
+    if (line.length > 0) {
+      lines.push(line);
+      line = [];
+    }
+
+    p.stroke(line_color);
+    p.strokeWeight(line_width);
+    p.noFill();
+
+    for (i=0;i<lines.length;i++) {
+      line = lines[i];
+      if (line.length > 1) {
+        pt = line[0];
+        p.beginShape();
+        p.curveVertex(pt[0], pt[1]);
+        for (j=0;j<line.length;j++) {
+          pt = line[j];
+          p.curveVertex(pt[0], pt[1]);
+        }
+        p.curveVertex(pt[0], pt[1]);
+        p.endShape();
+      }
+    }
+
+  };
+
+  var init = function(cb) {
+
+    // mobile
+    // deal with mobile device nuances
+    md = new MobileDetect(window.navigator.userAgent);
+
+    ModelImporter.set_init_model(model_raw_data);
+
+    model_data = ModelImporter.get_model_data();
+    model = new SketchRNN(model_data);
+
+    var initial_model = 'dick';
+
+    if (md.mobile()) {
+      mobile_mode = true;
+      console.log('mobile or ios: '+md.mobile());
+      screen_scale_factor = 4.0;
+      // Don't load large models on mobile,
+      // chances are someone is using cellular data and 20mb is expensive!
+      // use_large_models = false;
+    } else {
+      console.log('not mobile');
+      initial_model = class_list[0];
+    }
+
+    // model
+    set_title_text('start drawing a dick.');
+
+    /*
+    ModelImporter.change_model({}, initial_model, "gen", function(new_model) {
+      console.log("changing")
+      model = new_model
+      model.set_pixel_factor(screen_scale_factor);
+      //set_title_text(format_title_text(model.info.name));
+      cb();
+      changing_model_lock = false;
+      set_title_text('Start writing a Kanji.');
+      model_loaded = true;
+    }, true);
+    */
+    model.set_pixel_factor(screen_scale_factor);
+    changing_model_lock = false;
+    model_loaded = true;
+
+    screen_width = get_window_width(); //window.innerWidth
+    screen_height = get_window_height(); //window.innerHeight
+
+    document.documentElement.addEventListener('gesturestart', function (event) {
+        event.preventDefault();
+    }, false);
+
+    select_dom = document.getElementById('model_selector')
+    for(var i=0;i<class_list.length; i++){
+      var item = document.createElement("option");
+      item.text = class_list[i].replace(/_/g, ' ');
+      item.value = class_list[i];
+      select_dom.add(item);
+
+      // if(item.value == word){
+      //   item.selected = 'selected'
+      // }
+    }
+
+    select_dom.value = initial_model;
+
+    select_dom.addEventListener("change", function(){
+      model_sel_event(select_dom.value);
+    })
+
+    document.getElementById("clear").addEventListener("click", function(e){
+      reset_button_event();
+    })
+
+    /*document.getElementById("shuffle").addEventListener("click", function(e){
+      shuffle_button_event();
+    })*/
+
+    document.getElementById("info").addEventListener("click", function(e){
+      window.location.assign("https://github.com/dickrnn/dickrnn.github.io/blob/master/README.md");
+    })
+
+    document.getElementById("share").addEventListener("click", function(e){
+      if (final_strokes) {
+        var encode_drawing = uintarray_to_string(drawing_to_uintarray(final_strokes));
+        var target_url = 'share.html?s='+encode_drawing;
+        if (mobile_mode) {
+          window.location.assign(target_url);
+        } else {
+          var win = window.open(target_url, '_blank');
+          if (win) {
+            win.focus();
+          } else {
+            window.location.assign(target_url);
+          }
+        }
+      }
+    })
+
+    var canvas = document.getElementsByTagName("canvas")[0];
+    canvas.addEventListener("mousedown", function(e){
+      devicePressed(e.clientX, e.clientY);
+    })
+    canvas.addEventListener("mousemove", function(e){
+      if(tracking.down){
+        devicePressed(e.clientX, e.clientY);
+      }
+    })
+    canvas.addEventListener("mouseup", function(e){
+      deviceReleased();
+    })
+
+    document.addEventListener("touchstart",function(e){
+      if(e.target.nodeName == 'SELECT'){
+
+      } else if(e.target.nodeName == 'BUTTON'){
+        e.preventDefault()
+        e.target.click()
+      } else {
+        e.preventDefault()
+      }
+
+    })
+    canvas.addEventListener("touchstart",function(e){
+      e.preventDefault();
+      devicePressed(e.touches[0].clientX, e.touches[0].clientY);
+    })
+    canvas.addEventListener("touchmove", function(e){
+      e.preventDefault();
+      if(tracking.down){
+        devicePressed(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    })
+    canvas.addEventListener("touchend", function(e){
+      e.preventDefault();
+      deviceReleased();
+    })
+
+  };
+
+  var encode_strokes = function(sequence) {
+
+    if (sequence && sequence.length > 0) {
+      console.log("encoding");
+
+      // encode sequence
+      for (var i=0;i<sequence.length-1;i++) {
+        model_state_orig = model.update(sequence[i], model_state_orig);
+      }
+
+      restart_model(sequence);
+
+      modelPen.active = true;
+
+      set_title_text('')
+      console.log("finished encoding");
+    }
+
+  }
+
+  function restart_model(sequence) {
+    model_state = model.copy_state(model_state_orig); // bounded
+    modelStrokes = []
+
+    var idx = raw_lines.length-1;
+    var last_point = raw_lines[idx][raw_lines[idx].length-1];
+    var last_x = last_point[0];
+    var last_y = last_point[1];
+    var s = sequence[sequence.length-1];
+
+    modelPen.x = last_x;
+    modelPen.y = last_y;
+    modelPen.updatePrev(s)
+  }
+
+  function init_model_coordinates() {
+    x = screen_width/2.0;
+    y = screen_height/2.0;
+    start_x = x;
+    start_y = y;
+
+    modelPen.x = x;
+    modelPen.y = y;
+    modelPen.updatePrevPen([1, 0, 0])
+    modelPen.active = false;
+
+    // demo_finished = false;
+    startingStrokeIndex = 0;
+  }
+
+  function restart() {
+    // reinitialize variables before calling p5.js setup.
+    line_color = p.color(0,0,0,line_color_alpha);
+    predict_line_color = p.color(p.random(64, 224), p.random(64, 224), p.random(64, 224),line_color_alpha);
+
+    // make sure we enforce some minimum size of our demo
+    screen_width = Math.max(window.innerWidth, 400);
+    screen_height = Math.max(window.innerHeight, 320);
+
+    // variables for the sketch input interface.
+    userPen.currentState = 0
+    userPen.prevState = 1
+    // pen = 0;
+    // prev_pen = 1;
+    has_started = false; // set to true after user starts writing.
+    just_finished_line = false;
+    raw_lines = [];
+    current_raw_line = [];
+    strokes = [];
+    current_strokes = [];
+    modelStrokes = [];
+    startingStrokes = startingStrokesData[Math.floor(Math.random() * startingStrokesData.length)];
+    // start drawing from somewhere in middle of the canvas
+    init_model_coordinates();
+
+    if (model) {
+      model_state_orig = model.zero_state();
+      model_state_orig = model.update(model.zero_input(), model_state_orig);
+    }
+
+  };
+
+  function clear_screen() {
+    // console.log("CLEAR")
+    p.fill(255);
+    p.noStroke();
+    // p.rect(0, 0, screen_width, screen_height-41);
+    p.rect(0, 0, screen_width, screen_height);
+    p.stroke(0);
+  };
+
+  p.windowResized = function() {
+    "use strict";
+    screen_width = get_window_width(); //window.innerWidth
+    screen_height = get_window_height(); //window.innerHeight
+
+    p.resizeCanvas(screen_width, screen_height);
+
+    canvas.size(screen_width, screen_height);
+    clear_screen();
+    draw_example(strokes, start_x, start_y, line_color);
+    if (strokes.length > 0) {
+      restart_model(strokes);
+    }
+  };
+
+  function draw_random_example() {
+    var drawing = model.generate(temperature);
+    var image_size = Math.min(screen_width, screen_height)*0.6;
+    drawing = model.scale_drawing(drawing, image_size);
+    drawing = model.center_drawing(drawing);
+    draw_example(drawing, screen_width/2, screen_height/2, p.color(0, 0, 0, 32), [0, 1, 0]);
+  }
+
+  p.setup = function() {
+    init(function(){
+      console.log('ready.');
+      // draw_random_example();
+    });
+    restart();
+    canvas = p.createCanvas(screen_width, screen_height);
+    p.frameRate(30);
+    clear_screen();
+
+    last_time = +new Date()
+
+  };
+
+  function inside_box(x, y, w, h) {
+    var result = false;
+    if ((tracking.x > x) && (tracking.x < (x+w)) && (tracking.y > y) && tracking.y < (y+h)) {
+      result = true;
+    }
+    return result;
+  }
+
+  function get_window_width() {
+    // return p.windowWidth;
+    return window.innerWidth;
+  }
+
+  function get_window_height() {
+    // return p.windowHeight;
+    return window.innerHeight;
+  }
+
+  p.draw = function() {
+    screen_width = get_window_width(); //
+    screen_height = get_window_height(); //
+
+    if (run_encode_strokes) {
+      run_encode_strokes = false;
+
+      encode_strokes(current_strokes);
+      current_strokes = [];
+      if (strokes && strokes.length > 0) {
+        var ts = strokes[strokes.length-1];
+        current_strokes.push([ts[0], ts[1], ts[2], ts[3], ts[4]]);
+      }
+      set_title_text(format_title_text(model.name));
+    }
+
+    // record pen drawing from user:
+    clear_text_color = "rgba(0,0,0,0.5)"; // #3393d1
+    random_text_color = "rgba(0,0,0,0.5)"; // #3393d1
+    clear_text_background = false;
+    random_text_background = false;
+
+    if (model_loaded && tracking.down && (tracking.x > 0) && (tracking.x < screen_width) && (tracking.y > 0) && tracking.y < screen_height) { // pen is touching the paper
+      if (userPen.prevState == 1) {
+        clear_screen();
+        draw_example(strokes, start_x, start_y, line_color);
+      }
+      if (has_started == false) { // first time anything is written
+        restarting_model_lock = false;
+
+        restart();
+        strokes = [];
+        clear_screen();
+        has_started = true;
+        demo_finished = true;
+
+        line_color_alpha = final_color_alpha;
+        line_color = p.color(0,0,0,line_color_alpha);
+        predict_line_color = p.color(p.random(64, 224), p.random(64, 224), p.random(64, 224),line_color_alpha);
+
+        x = tracking.x;
+        y = tracking.y;
+        start_x = x;
+        start_y = y;
+        userPen.currentState = 0;
+        current_raw_line.push([x, y]);
+      } else {
+        var dx0 = tracking.x-x; // candidate for dx
+        var dy0 = tracking.y-y; // candidate for dy
+        if (dx0*dx0+dy0*dy0 > epsilon*epsilon) { // only if pen is not in same area
+          var dx = dx0;
+          var dy = dy0;
+          userPen.currentState = 0
+
+          if (userPen.prevState == 0) {
+            p.stroke(line_color);
+            p.strokeWeight(line_width); // nice thick line
+            p.line(x, y, x+dx, y+dy); // draw line connecting prev point to current point.
+          }
+
+          // update the absolute coordinates from the offsets
+          x += dx;
+          y += dy;
+
+          // update raw_lines
+          current_raw_line.push([x, y]);
+          just_finished_line = true;
+
+          // using the previous pen states, and hidden state, get next hidden state
+          // update_rnn_state();
+        }
+      }
+    } else if(model_loaded && !has_started && !demo_finished) {
+      // console.log("drawin!")
+      // we draw the existing strokes
+      if(smallPause) return;
+      var ms = +new Date()
+      if(ms - last_time < 100) {
+        return;
+      }
+      last_time = ms;
+
+      if(startingStrokeIndex < startingStrokes.length) {
+        stroke = startingStrokes[startingStrokeIndex];
+        var starting_stroke_scale_factor = 0.8;
+        if (mobile_mode) {
+          starting_stroke_scale_factor = 0.4;
+        }
+        dx = stroke[0]*starting_stroke_scale_factor;
+        dy = stroke[1]*starting_stroke_scale_factor;
+
+        p.stroke(line_color);
+        p.strokeWeight(line_width); // nice thick line
+        p.line(x, y, x+dx, y+dy); // draw line connecting prev point to current point.
+
+        x += dx;
+        y += dy;
+        current_raw_line.push([x, y]);
+        just_finished_line = false;
+
+        startingStrokeIndex++;
+
+      // if(startingStrokeIndex >= startingStrokes.length) {
+      } else {
+        //smallPause = true
+        //setTimeout(function() {
+        //smallPause = false
+        startingStrokes = startingStrokesData[Math.floor(Math.random() * startingStrokesData.length)];
+        init_model_coordinates();
+        clear_screen();
+        //}, 120)
+      }
+
+    } else { // pen is above the paper
+      userPen.currentState = 1;
+      if (just_finished_line) {
+        var current_raw_line_simple = DataTool.simplify_line(current_raw_line, 0.1);
+        var idx, last_point, last_x, last_y;
+
+        if (current_raw_line_simple.length > 1) {
+          if (raw_lines.length === 0) {
+            last_x = start_x;
+            last_y = start_y;
+          } else {
+            idx = raw_lines.length-1;
+            last_point = raw_lines[idx][raw_lines[idx].length-1];
+            last_x = last_point[0];
+            last_y = last_point[1];
+          }
+          var stroke = DataTool.line_to_stroke(current_raw_line_simple, [last_x, last_y]);
+          raw_lines.push(current_raw_line_simple);
+          console.log(JSON.stringify(stroke));
+          strokes = strokes.concat(stroke);
+          current_strokes = current_strokes.concat(stroke);
+
+          // redraw simplified strokes
+          clear_screen();
+          draw_example(strokes, start_x, start_y, line_color);
+
+          old_title_text = title_text;
+          set_title_text("sketch-rnn is working ...");
+
+          // initialize rnn:
+          run_encode_strokes = true;
+
+          /*
+          p.stroke(line_color);
+          p.strokeWeight(2.0);
+          p.ellipse(x, y, 5, 5); // draw line connecting prev point to current point.
+          */
+
+        } else {
+          if (raw_lines.length === 0) {
+            has_started = false;
+          }
+        }
+
+        current_raw_line = [];
+        just_finished_line = false;
+      }
+
+      if(restarting_model_lock) {
+        restarting_model_lock_count -= 1;
+        if (restarting_model_lock_count >= 0) {
+          return;
+        }
+        clear_screen();
+        predict_line_color = p.color(p.random(64, 224), p.random(64, 224), p.random(64, 224),line_color_alpha);
+        draw_example(strokes, start_x, start_y, line_color);
+        restarting_model_lock = false;
+      }
+
+      // have machine take over the drawing here:
+      if (modelPen.active && !run_encode_strokes) {
+
+        modelPen.updateCurrentPen(modelPen.getPrevPen())
+
+        model_state = model.update(modelPen.getStroke(), model_state);
+        modelPdf = model.get_pdf(model_state);
+        var s =  model.sample(modelPdf, temperature);
+        modelPen.updateCurrent(s)
+        modelStrokes.push(s)
+
+        if (modelPen.end === 1) {
+          // predict_line_color = p.color(p.random(64, 224), p.random(64, 224), p.random(64, 224), line_color_alpha);
+          clear_screen();
+          final_strokes = strokes.concat(modelStrokes);
+          draw_example(strokes.concat(modelStrokes), start_x, start_y, p.color(0,0,0,line_color_alpha));
+          restart_model(strokes);
+          restarting_model_lock = true;
+          restarting_model_lock_count = restarting_model_lock_frames;
+        } else {
+
+          if (modelPen.prevDown === 1) {
+            // draw line connecting prev point to current point.
+            p.stroke(predict_line_color);
+            p.strokeWeight(line_width);
+            p.line(modelPen.x, modelPen.y, modelPen.x + modelPen.dx, modelPen.y + modelPen.dy);
+          }
+
+          modelPen.updatePrevPen(modelPen.getCurrentPen())
+
+          modelPen.x += modelPen.dx;
+          modelPen.y += modelPen.dy;
+        }
+      }
+
+    }
+
+    userPen.prevState = userPen.currentState;
+  };
+
+  var model_sel_event = function(item) {
+    var model_mode = "gen";
+    console.log("user wants to change to model " + item);
+    changing_model_lock = true;
+    var call_back = function(new_model) {
+      demo_finished = true;
+      model = new_model;
+      model.set_pixel_factor(screen_scale_factor);
+      // encode_strokes(strokes);
+      restart();
+      clear_screen();
+      // draw_example(strokes, start_x, start_y, line_color);
+      set_title_text(format_title_text(model.info.name));
+      changing_model_lock = false;
+    }
+    set_title_text('Sketch-RNN is loading '+item+' model ...');
+    console.log("MODEL", model)
+    ModelImporter.change_model(model, item, model_mode, call_back, true);
+  };
+
+
+  var reset_button_event = function() {
+    restart();
+    clear_screen();
+  };
+
+  var shuffle_button_event = function() {
+    var the_class_list = organize_class_list(refresh_count);
+    refresh_count += 1;
+    var item = the_class_list[Math.floor(Math.random() * the_class_list.length)];
+    if (!changing_model_lock) {
+      select_dom.value = item;
+      // model_sel_event(select_dom.value);
+      model_sel_event(item);
+    }
+  };
+
+  var temperature_slider_event = function() {
+    temperature = temperature_slider.value()/100;
+    clear_screen();
+    draw_example(strokes, start_x, start_y, line_color);
+  };
+
+  var deviceReleased = function() {
+    tracking.down = false;
+  }
+
+  var devicePressed = function(x, y) {
+    tracking.x = x;
+    tracking.y = y;
+    if (!tracking.down) {
+      tracking.down = true;
+    }
+  };
+
+  function uintarray_to_string(u8) {
+    var s = "";
+    for (var i = 0, len = u8.length; i < len; i++) {
+      s += String.fromCharCode(u8[i]);
+    }
+    var b64encoded = btoa(s);
+    return b64encoded;
+  }
+  function drawing_to_uintarray(drawing) {
+    var maxlen = 450;
+    var len = Math.min(drawing.length, maxlen);
+    var i, j, idx;
+    var maxval = 1.0;
+    var val;
+    var s;
+    for (i=0;i<len;i++) {
+      for (j=0;j<2;j++) {
+        val = Math.abs(drawing[i][j]);
+        maxval = Math.max(val, maxval);
+      }
+    }
+    var result = new Uint8Array(len*3);
+    idx = 0;
+    for (i=0;i<len;i++) {
+      s = drawing[i];
+      result[idx+0] = Math.max(Math.round((1+s[0]/maxval)*127), 0);
+      result[idx+1] = Math.max(Math.round((1+s[1]/maxval)*127), 0);
+      result[idx+2] = s[2];
+      idx += 3;
+    }
+    console.log(maxval);
+    return result;
+  }
+
+};
+var custom_p5 = new p5(sketch, 'sketch');
+  </script>
+</html>

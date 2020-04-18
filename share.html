@@ -1,0 +1,369 @@
+<!-- based on the code from this repo: https://github.com/magenta/magenta-demos/blob/master/sketch-rnn-js/ -->
+<!-- Also based on index.html from this demo: https://magenta.tensorflow.org/assets/sketch_rnn_demo/index.html -->
+<html>
+<head>
+
+  <title>dick-rnn</title>
+  <meta charset="UTF-8">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163494039-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-163494039-1');
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <meta name="author" content="dickrnn">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400" rel="stylesheet">
+  <!--  Essential META Tags -->
+  <meta property="og:title" content="dick-rnn">
+  <meta property="og:description" content="a neural network trained to draw dicks">
+  <meta property="og:image" content="https://dickrnn.github.io/card/dick_card_rect.png">
+  <meta property="og:url" content="https://dickrnn.github.io/">
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="dick-rnn">
+  <meta name="twitter:description" content="a neural network trained to draw dicks">
+  <meta property="og:site_name" content="dick-rnn">
+  <meta name="twitter:image" content="https://dickrnn.github.io/card/dick_card_square2.png">
+
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400" rel="stylesheet">
+  <link href="share.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/mobile-detect.js/0.4.1/mobile-detect.min.js"></script>
+  <script language="javascript" type="text/javascript" src="https://storage.googleapis.com/quickdraw-models/sketchRNN/lib/p5.js"></script>
+  <script language="javascript" type="text/javascript" src="https://storage.googleapis.com/quickdraw-models/sketchRNN/lib/p5.svg.js"></script>
+
+</head>
+<body>
+
+  <div id="sketch"></div>
+  <div id="ui">
+    <button id="pngbutton">png</button>
+    <button id="mainbutton">svg</button>
+
+  </div>
+
+  <div id="desc">
+  <center>
+  <p><a href="https://dickrnn.github.io/"><kbd>dick-rnn demo</kbd></a></p>
+  <p><a id="permalink" href="https://magenta.tensorflow.org/sketch-rnn-demo/"><kbd>permalink to dick drawing</kbd></a></p>
+  </center>
+  </div>
+
+
+</body>
+
+<script language="javascript" type="text/javascript">
+
+// Copyright 2017 dickrnn
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+// implied. See the License for the specific language governing
+// permissions and limitations under the License.
+
+var rnn_model;
+var rnn_model_data;
+var screen_width;
+var screen_height;
+var render_mode="svg";
+
+var default_strokes=[[0,3,1,0,0],[0,20,1,0,0],[-7,8,1,0,0],[-12,7,1,0,0],[-27,8,1,0,0],[-14,11,1,0,0],[-3,25,1,0,0],[6,14,1,0,0],[17,18,1,0,0],[19,3,1,0,0],[15,-10,1,0,0],[22,-27,1,0,0],[17,-3,1,0,0],[9,14,1,0,0],[3,21,1,0,0],[4,8,1,0,0],[8,5,1,0,0],[13,0,1,0,0],[17,-14,1,0,0],[5,-13,1,0,0],[0,-13,1,0,0],[-24,-34,1,0,0],[0,-16,1,0,0],[9,-10,1,0,0],[11,0,1,0,0],[39,11,1,0,0],[15,-1,1,0,0],[13,-8,1,0,0],[10,-18,1,0,0],[3,-16,1,0,0],[-3,-40,1,0,0],[-9,-15,1,0,0],[-21,-3,1,0,0],[-21,9,1,0,0],[-21,24,1,0,0],[-18,7,1,0,0],[-19,1,1,0,0],[-52,-36,1,0,0],[-10,-4,1,0,0],[-45,-4,1,0,0],[-16,8,1,0,0],[-9,18,1,0,0],[0,13,1,0,0],[8,12,1,0,0],[9,5,1,0,0],[13,1,1,0,0],[23,-12,1,0,0],[13,-1,1,0,0],[10,8,1,0,0],[0,15,1,0,0],[-2,-2,0,1,0],[58,-83,1,0,0],[-9,3,1,0,0],[-4,8,1,0,0],[0,9,1,0,0],[9,10,1,0,0],[19,2,1,0,0],[7,-9,1,0,0],[0,-9,1,0,0],[-24,-17,0,1,0]];
+
+// https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+var draw_example = function(example, start_x, start_y, line_color, prev_pen_override) {
+  var i, j;
+  var x=start_x, y=start_y;
+  var dx, dy;
+  var pen_down, pen_up, pen_end;
+  var prev_pen = [0, 1, 0];
+
+  if (Array.isArray(prev_pen_override)) {
+    penState = prev_pen_override;
+  }
+
+  curveTightness(1.0);
+
+  var lines = [];
+  var line = [];
+  var pt;
+
+  line.push([x, y]);
+
+  for(i=0;i<example.length;i++) {
+    // sample the next pen's states from our probability distribution
+    [dx, dy, pen_down, pen_up, pen_end] = example[i];
+
+    if (prev_pen[2] == 1) { // end of drawing.
+      break;
+    }
+
+    x += dx;
+    y += dy;
+
+    // only draw on the paper if the pen is touching the paper
+    if (prev_pen[0] == 1) {
+      line.push([x, y]);
+    } else {
+      lines.push(line);
+      line = [];
+      line.push([x, y]);
+    }
+
+    // update the previous pen's state to the current one we just sampled
+    prev_pen = [pen_down, pen_up, pen_end];
+  }
+  if (line.length > 0) {
+    lines.push(line);
+    line = [];
+  }
+
+  stroke(color(0, 0.8*255));
+  strokeWeight(10.0);
+  noFill();
+
+  for (i=0;i<lines.length;i++) {
+    line = lines[i];
+    if (line.length > 1) {
+      pt = line[0];
+      beginShape();
+      curveVertex(pt[0], pt[1]);
+      for (j=0;j<line.length;j++) {
+        pt = line[j];
+        curveVertex(pt[0], pt[1]);
+      }
+      curveVertex(pt[0], pt[1]);
+      endShape();
+    }
+  }
+
+};
+
+function set_title_text(new_text) {
+  var title_text = new_text.split('_').join(' ');
+  document.getElementById("mainbutton").innerHTML = '&nbsp;'+title_text;
+};
+
+/**
+ * center the drawing so that the starting point will be the center of the image.
+ */
+function center_drawing(sequence) {
+  // returns vector image that is centered at the starting point.
+  var result = [];
+  var sx = 0, sy = 0;
+  var max_x = -10000000, min_x = 10000000;
+  var max_y = -10000000, min_y = 10000000;
+  for (var i=0;i<sequence.length;i++) {
+    if (sequence[i][4] === 1) {
+      result.push([0, 0, 0, 0, 1]);
+      continue;
+    }
+    sx += sequence[i][0];
+    sy += sequence[i][1];
+    max_x = Math.max(max_x, sx);
+    min_x = Math.min(min_x, sx);
+    max_y = Math.max(max_y, sy);
+    min_y = Math.min(min_y, sy);
+    result.push([sequence[i][0], sequence[i][1], sequence[i][2], sequence[i][3], sequence[i][4]]);
+  }
+
+  var cx = -(max_x + min_x) / 2.0;
+  var cy = -(max_y + min_y) / 2.0;
+
+  result.unshift([cx, cy, 1, 0, 0]);
+  return result;
+};
+
+/**
+ * scale the drawing to be inside a fixed box.
+ */
+function scale_drawing(sequence, scale) {
+  // returns vector image that is scaled so that the maximum size is the same as the scale parameter.
+  // scale parameter is in pixels.
+  var result = [];
+  var sx = 0, sy = 0;
+  var max_x = -10000000, min_x = 10000000;
+  var max_y = -10000000, min_y = 10000000;
+  for (var i=0;i<sequence.length;i++) {
+    if (sequence[i][4] === 1) {
+      continue;
+    }
+    sx += sequence[i][0];
+    sy += sequence[i][1];
+    max_x = Math.max(max_x, sx);
+    min_x = Math.min(min_x, sx);
+    max_y = Math.max(max_y, sy);
+    min_y = Math.min(min_y, sy);
+  }
+
+  var max_size = Math.max(max_x - min_x, max_y - min_y);
+  var factor = scale / max_size;
+
+  for (var i=0;i<sequence.length;i++) {
+    result.push([sequence[i][0]*factor, sequence[i][1]*factor, sequence[i][2], sequence[i][3], sequence[i][4]]);
+  }
+
+  return result;
+};
+
+/**
+ * deals with decompressing b64 models to float arrays.
+ */
+function string_to_uintarray(b64encoded) {
+  var u8 = new Uint8Array(atob(b64encoded).split("").map(function(c) {
+    return c.charCodeAt(0); }));
+  return u8;
+}
+function uintarray_to_string(u8) {
+  var s = "";
+  for (var i = 0, len = u8.length; i < len; i++) {
+    s += String.fromCharCode(u8[i]);
+  }
+  var b64encoded = btoa(s);
+  return b64encoded;
+}
+function drawing_to_uintarray(drawing) {
+  var len = drawing.length;
+  var i, j, idx;
+  var maxval = 1.0;
+  var val;
+  var s;
+  for (i=0;i<len;i++) {
+    for (j=0;j<2;j++) {
+      val = Math.abs(drawing[i][j]);
+      maxval = Math.max(val, maxval);
+    }
+  }
+  var result = new Uint8Array(len*3);
+  idx = 0;
+  for (i=0;i<len;i++) {
+    s = drawing[i];
+    result[idx+0] = Math.max(Math.round((1+s[0]/maxval)*127), 0);
+    result[idx+1] = Math.max(Math.round((1+s[1]/maxval)*127), 0);
+    result[idx+2] = s[2];
+    idx += 3;
+  }
+  console.log(maxval);
+  return result;
+}
+function uintarray_to_drawing(a) {
+  var len = a.length/3;
+  var i;
+  var result = [];
+  var s;
+  var idx = 0;
+  for (i=0;i<len;i++) {
+    s = [0, 0, 0, 0, 0];
+    s[0] = a[idx+0]-127;
+    s[1] = a[idx+1]-127;
+    if (a[idx+2] === 1) {
+      s[2] = 1;
+    } else {
+      s[3] = 1;
+    }
+    result.push(s);
+    idx += 3;
+  }
+  return result;
+}
+
+var setup = function() {
+
+  var drawing, i;
+
+  // make sure we enforce some minimum size of our demo
+  var the_size = Math.min(window.innerWidth*0.8, window.innerHeight*0.6);
+  screen_width = window.innerWidth*1.00;
+  screen_height = window.innerHeight*0.8;
+
+  var render_mode_option = getParameterByName("r");
+  if (render_mode_option && render_mode_option === "png") {
+    render_mode = "png";
+  }
+
+  var save_button_svg = document.getElementById("mainbutton");
+  var save_button_png = document.getElementById("pngbutton");
+
+  // mobile
+  var md, mobile_mode = false;
+  md = new MobileDetect(window.navigator.userAgent);
+  if (md.mobile()) {
+    mobile_mode = true;
+    console.log('mobile or ios: '+md.mobile());
+  }
+
+  if (render_mode != "svg") {
+    createCanvas(screen_width, screen_height);
+  } else {
+    createCanvas(screen_width, screen_height, SVG);
+  }
+
+  clear();
+  fill(255);
+  noStroke();
+  rect(0,0,screen_width,screen_height);
+
+  var str_drawing = getParameterByName("s");
+
+  if (!str_drawing || render_mode!="svg" || mobile_mode) {
+    save_button_svg.style.visibility = 'hidden';
+    save_button_png.style.visibility = 'hidden';
+  }
+
+  if (str_drawing) {
+    document.getElementById("permalink").href="share.html?s="+str_drawing;
+    drawing = uintarray_to_drawing(string_to_uintarray(str_drawing));
+  }
+
+  if (!drawing) {
+    drawing = default_strokes;
+  }
+
+  drawing = scale_drawing(drawing, the_size);
+  drawing = center_drawing(drawing);
+
+  draw_example(drawing, screen_width/2, screen_height/2, color(85,85,85, 0.7*255));
+
+  if (render_mode != "svg") {
+    save('sketch-rnn'+'.'+render_mode);
+  }
+
+  document.getElementById("mainbutton").addEventListener("click", function(e){
+    save('sketch-rnn'+'.'+render_mode);
+  })
+  document.getElementById("pngbutton").addEventListener("click", function(e){
+    if (str_drawing) {
+      var target_url = 'share.html?r=png&s='+str_drawing;
+      window.location.assign(target_url);
+    }
+  })
+
+};
+
+</script>
+</html>
