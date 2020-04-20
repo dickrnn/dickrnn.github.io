@@ -44,9 +44,9 @@ Examples of sharable generated dick doodles:
 
 # Dataset
 
-This recurrent neural network was trained on a dataset of roughly 10,000 dick doodles.
+This recurrent neural network was trained on a [dataset](https://github.com/studiomoniker/Quickdraw-appendix) of roughly 10,000 dick doodles.
 
-The [Quickdraw-appendix](https://github.com/studiomoniker/Quickdraw-appendix) dataset was used, and processed via incremental RDP epsilons to fit most dicks within 200 steps. Note that I used the raw version, not their simplified version, since the dicks were more detailed. The processed dataset that is compatable with [`sketch-rnn`](https://github.com/hardmaru/sketch-rnn-datasets/)'s strokes (no pun) is in this repo as `dataset/dicks.npz` and can be loaded this way:
+The [Quickdraw-appendix](https://github.com/studiomoniker/Quickdraw-appendix) dataset was processed via incremental RDP epsilons to fit most dicks within 200 steps. Note that I used the raw version, not their simplified version, since the dicks were more detailed. The processed dataset that is compatable with [`sketch-rnn`](https://github.com/hardmaru/sketch-rnn-datasets/)'s strokes (no pun) is in this repo as `dataset/dicks.npz` and can be loaded this way:
 
 ```python
 filename = "dataset/dicks.npz"
