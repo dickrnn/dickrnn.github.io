@@ -16,7 +16,7 @@ Dataset used for training is based on [Quickdraw-appendix](https://github.com/st
 
 *__Media Coverage__*
 
-Reddit: Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).*
+Reddit: Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
 [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/)
 
