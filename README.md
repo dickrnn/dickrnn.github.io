@@ -92,7 +92,7 @@ I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/maste
 
 *__Update (4/24/2020)__ The Quickdraw-appendix dataset was updated, and there are now 25K examples, up from the earlier 10K. I processed the newer dataset as `dicksv2.npz` with a proper train/valid/test split of 23500/1000/706 samples. Note that `dicks.npz` has a maximum length of 200 while `dicksv2.npz` has a maximum length of 300 steps.*
 
-*In the process of training newer models with the larger dataset. Stay tuned.*
+*The [Main Demo](https://dickrnn.github.io/) has been updated to use a larger, but slower model (1024 neuron LSTM) trained on the revised dataset with more examples*
 
 # License
 
