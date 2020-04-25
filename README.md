@@ -18,11 +18,7 @@ Dataset used for training is based on [Quickdraw-appendix](https://github.com/st
 
 Reddit: Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
-[The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/)
-
-[Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html)
-
-[PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/)
+Articles in [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/), [Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html), [PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/).
 
 # Why?
 
