@@ -8,13 +8,21 @@ GitHub: https://github.com/dickrnn/dickrnn.github.io/
 
 <a href="https://dickrnn.github.io/"><img width="100%" src="card/dick_card_rect.png"></img></a>
 
-*__Update (4/24/2020)__ This project became trendy on Reddit. Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).*
-
 This project is a fork of [sketch-rnn-js](https://github.com/tensorflow/magenta-demos/tree/master/sketch-rnn-js/README.md) demos, but customized for dicks, based on the original [sketch-rnn demo](https://magenta.tensorflow.org/assets/sketch_rnn_demo/index.html).
 
 The methodology is described in this paper: https://arxiv.org/abs/1704.03477
 
 Dataset used for training is based on [Quickdraw-appendix](https://github.com/studiomoniker/Quickdraw-appendix).
+
+*__Media Coverage__*
+
+Reddit: Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).*
+
+[The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/)
+
+[Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html)
+
+[PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/)
 
 # Why?
 
