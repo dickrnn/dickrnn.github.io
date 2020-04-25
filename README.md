@@ -81,6 +81,7 @@ Training samples from the dataset:
 <a href="https://github.com/studiomoniker/Quickdraw-appendix"><img width="100%" src="img/dick_grid.svg"></img></a>
 
 For best results, train with default [sketch-rnn](https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn) settings, but use a dropout keep probability of 80%. Early stopping was performed on the validation set. To maximize samples used for training/validation, no test set is used, and the test set is just set to the same 496 validation samples to be compatable with the data format expected by the existing code.
+
 Command used to train the TensorFlow [sketch-rnn](https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn) model:
 
 ```
