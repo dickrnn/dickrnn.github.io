@@ -16,7 +16,7 @@ Dataset used for training is based on [Quickdraw-appendix](https://github.com/st
 
 *__Media Coverage__*
 
-[Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328): *“Mean Time To Dick is a key measure of any given human or machine intelligence system”*
+[Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328): *“Mean Time To Dick is a key measure of any given human or machine intelligence system.”*
 
 Reddit: Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
