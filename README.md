@@ -16,6 +16,8 @@ Dataset used for training is based on [Quickdraw-appendix](https://github.com/st
 
 *__Media Coverage__*
 
+[Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328): *“Mean Time To Dick is a key measure of any given human or machine intelligence system”*
+
 Reddit: Funny discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
 Articles in [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/), [Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html), [PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/).
