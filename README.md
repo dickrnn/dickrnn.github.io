@@ -80,7 +80,14 @@ Training samples from the dataset:
 
 <a href="https://github.com/studiomoniker/Quickdraw-appendix"><img width="100%" src="img/dick_grid.svg"></img></a>
 
-For best results, train with default [sketch-rnn](https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn) settings, but use a dropout keep probability of 80%. Early stopping was performed on the validation set. To maximize samples used for training/validation, no test set is used, and the test set is just set to the same 496 validation samples to be compatable with the data format expected by the existing code. I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/master/jupyter-notebooks/Sketch_RNN_TF_To_JS_Tutorial.ipynb) in the [sketch-rnn repo](https://github.com/magenta/magenta-demos) that easily converted the TensorFlow checkpoint into the `json` format that `sketch-rnn-js` can use.
+For best results, train with default [sketch-rnn](https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn) settings, but use a dropout keep probability of 80%. Early stopping was performed on the validation set. To maximize samples used for training/validation, no test set is used, and the test set is just set to the same 496 validation samples to be compatable with the data format expected by the existing code.
+Command used to train the TensorFlow [sketch-rnn](https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn) model:
+
+```
+python sketch_rnn_train.py --data_dir=dataset --gpu=0 --log_root=log_dick_small --hparams=data_set=['dicksv2.npz'],num_steps=1000000,conditional=0,dec_rnn_size=512,recurrent_dropout_prob=0.8
+```
+
+I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/master/jupyter-notebooks/Sketch_RNN_TF_To_JS_Tutorial.ipynb) in the [sketch-rnn repo](https://github.com/magenta/magenta-demos) that easily converted the TensorFlow checkpoint into the `json` format that `sketch-rnn-js` can use.
 
 *__Update (4/24/2020)__ The Quickdraw-appendix dataset was updated, and there are now 25K examples, up from the earlier 10K. I processed the newer dataset as `dicksv2.npz` with a proper train/valid/test split of 23500/1000/706 samples. Note that `dicks.npz` has a maximum length of 200 while `dicksv2.npz` has a maximum length of 300 steps.*
 
