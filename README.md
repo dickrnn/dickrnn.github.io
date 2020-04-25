@@ -85,7 +85,7 @@ For best results, train with default [sketch-rnn](https://github.com/tensorflow/
 Command used to train the TensorFlow [sketch-rnn](https://github.com/tensorflow/magenta/tree/master/magenta/models/sketch_rnn) model:
 
 ```
-python sketch_rnn_train.py --data_dir=dataset --gpu=0 --log_root=log_dick_small --hparams=data_set=['dicks.npz'],num_steps=1000000,conditional=0,dec_rnn_size=512,recurrent_dropout_prob=0.8
+python sketch_rnn_train.py --data_dir=dataset --gpu=0 --log_root=log --hparams=data_set=['dicks.npz'],num_steps=1000000,conditional=0,dec_rnn_size=512,recurrent_dropout_prob=0.8
 ```
 
 I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/master/jupyter-notebooks/Sketch_RNN_TF_To_JS_Tutorial.ipynb) in the [sketch-rnn repo](https://github.com/magenta/magenta-demos) that easily converted the TensorFlow checkpoint into the `json` format that `sketch-rnn-js` can use.
