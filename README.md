@@ -16,11 +16,11 @@ Dataset used for training is based on [Quickdraw-appendix](https://github.com/st
 
 *__Media Coverage__*
 
-[Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328): *“Mean Time To Dick is a key measure of any given human or machine intelligence system.”*
+[Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328) on Dick-RNN: *“Mean Time To Dick is a key measure of any given human or machine intelligence system.”*
 
-Reddit: Discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
+Reddit: Dick-RNN discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
-Articles in [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/), [Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html), [PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/), [Código Espagueti](https://codigoespagueti.com/noticias/tecnologia/red-neuronal-10000-penes-dibujar/) (Spanish), [Gigazine](https://gigazine.net/news/20200426-dickrnn/) (Japanese).
+Articles about Dick-RNN in [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/), [Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html), [PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/), [Código Espagueti](https://codigoespagueti.com/noticias/tecnologia/red-neuronal-10000-penes-dibujar/) (Spanish), [Gigazine](https://gigazine.net/news/20200426-dickrnn/) (Japanese).
 
 # Why?
 
@@ -90,7 +90,7 @@ python sketch_rnn_train.py --data_dir=dataset --gpu=0 --log_root=log --hparams=d
 
 I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/master/jupyter-notebooks/Sketch_RNN_TF_To_JS_Tutorial.ipynb) in the [sketch-rnn repo](https://github.com/magenta/magenta-demos) that easily converted the TensorFlow checkpoint into the `json` format that `sketch-rnn-js` can use.
 
-*__Update (4/24/2020)__ The Quickdraw-appendix dataset was updated, and there are now 25K examples, up from the earlier 10K. I processed the newer dataset as `dicksv2.npz` with a proper train/valid/test split of 23500/1000/706 samples. Note that `dicks.npz` has a maximum length of 200 while `dicksv2.npz` has a maximum length of 300 steps. The [Main Demo](https://dickrnn.github.io/) has been updated to use a larger, but slightly slower model trained on the revised dataset containing more training examples.*
+*__Update (4/24/2020)__ The Quickdraw-appendix dataset was updated, and there are now 25K examples, up from the earlier 10K. I processed the newer dataset as `dicksv2.npz` with a proper train/valid/test split of 23500/1000/706 samples. The [Main Demo](https://dickrnn.github.io/) has been updated to use a larger, but slightly slower model trained on the revised dataset containing more training examples.*
 
 # License
 
