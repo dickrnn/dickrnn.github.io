@@ -8,7 +8,7 @@ GitHub: https://github.com/dickrnn/dickrnn.github.io/
 
 <a href="https://dickrnn.github.io/"><img width="100%" src="card/dick_card_rect.png"></img></a>
 
-This project is a fork of [sketch-rnn-js](https://github.com/tensorflow/magenta-demos/tree/master/sketch-rnn-js/README.md) demos, but customized for dicks, based on the original [sketch-rnn demo](https://magenta.tensorflow.org/assets/sketch_rnn_demo/index.html).
+This project is based on the original [sketch-rnn demo](https://magenta.tensorflow.org/assets/sketch_rnn_demo/index.html), and is a fork of [sketch-rnn-js](https://github.com/tensorflow/magenta-demos/tree/master/sketch-rnn-js/README.md), but customized for dicks.
 
 The methodology is described in this paper: https://arxiv.org/abs/1704.03477
 
@@ -88,9 +88,13 @@ Command used to train the TensorFlow [sketch-rnn](https://github.com/tensorflow/
 python sketch_rnn_train.py --data_dir=dataset --gpu=0 --log_root=log --hparams=data_set=['dicks.npz'],num_steps=1000000,conditional=0,dec_rnn_size=512,recurrent_dropout_prob=0.8
 ```
 
-I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/master/jupyter-notebooks/Sketch_RNN_TF_To_JS_Tutorial.ipynb) in the [sketch-rnn repo](https://github.com/magenta/magenta-demos) that easily converted the TensorFlow checkpoint into the `json` format that `sketch-rnn-js` can use.
+I found a [Jupyter notebook](https://github.com/magenta/magenta-demos/blob/master/jupyter-notebooks/Sketch_RNN_TF_To_JS_Tutorial.ipynb) in the [sketch-rnn repo](https://github.com/magenta/magenta-demos) that easily converted the TensorFlow checkpoint into the `.gen.full.json` format that `sketch-rnn-js` can use, with the command:
 
-*__Update (4/24/2020)__ The Quickdraw-appendix dataset was updated, and there are now 25K examples, up from the earlier 10K. I processed the newer dataset as `dicksv2.npz` with a proper train/valid/test split of 23500/1000/706 samples. The [Main Demo](https://dickrnn.github.io/) has been updated to use a larger, but slightly slower model trained on the revised dataset containing more training examples.*
+```
+node compress_model.js custom.gen.full.json dick.gen.js
+```
+
+*__Update (4/27/2020)__ The Quickdraw-appendix dataset was updated, and there are now 25K examples, up from the earlier 10K. I processed the newer dataset as `dicksv2.npz` with a proper train/valid/test split of 23000/1500/693 samples. The [Main Demo](https://dickrnn.github.io/) has been updated to use a larger, but slightly slower model trained on the revised dataset containing more training examples.*
 
 # License
 
