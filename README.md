@@ -20,7 +20,7 @@ Dataset used for training is based on [Quickdraw-appendix](https://github.com/st
 
 Reddit: dick-rnn discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
-Articles about dick-rnn in [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/), [Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html), [PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/), [Mashable](https://mashable.com/article/dickrnn-dick-doodle-neural-network-ai/), [Código Espagueti](https://codigoespagueti.com/noticias/tecnologia/red-neuronal-10000-penes-dibujar/) (Spanish), [Gigazine](https://gigazine.net/news/20200426-dickrnn/) (Japanese).
+Articles about dick-rnn in [The Next Web](https://thenextweb.com/neural/2020/04/24/neural-network-draw-dicks/), [Boing Boing](https://boingboing.net/2020/04/24/this-ais-only-function-is-to.html), [PC Gamer](https://www.pcgamer.com/someone-taught-an-ai-to-draw-dicks-after-feeding-it-25000-doodles-of-penises/), [Mashable](https://mashable.com/article/dickrnn-dick-doodle-neural-network-ai/), [Dlisted](https://dlisted.com/2020/04/26/hot-slut-of-the-day-2278/), [Código Espagueti](https://codigoespagueti.com/noticias/tecnologia/red-neuronal-10000-penes-dibujar/) (Spanish), [Gigazine](https://gigazine.net/news/20200426-dickrnn/) and [Karapaia](http://karapaia.com/) (Japanese).
 
 # Why?
 
