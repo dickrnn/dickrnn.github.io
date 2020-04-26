@@ -59,4 +59,4 @@ for (var i=0;i<model_weights.length;i++) {
 
 var target_model = [orig_model[0], orig_model[1], compressed_weights];
 
-fs.writeFileSync(target_file, JSON.stringify(target_model), 'ascii');
+fs.writeFileSync(target_file, "var model_raw_data='"+JSON.stringify(target_model)+"';", 'ascii');
