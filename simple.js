@@ -153,11 +153,12 @@ var sketch = function( p ) {
     [model_dx, model_dy, model_pen_down, model_pen_up, model_pen_end] = model.sample(model_pdf, temperature);
 
     if (model_pen_end === 1) {
-      if (model_delay <= 0) {
+      //if (model_delay <= 0) {
+        console.log("restart");
         restart();
-      } else {
-        model_delay -= 1;
-      }
+      //} else {
+      //  model_delay -= 1;
+      //}
     } else {
 
       if (model_prev_pen[0] === 1) {
