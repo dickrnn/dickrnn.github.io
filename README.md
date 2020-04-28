@@ -14,9 +14,10 @@ The methodology is described in this paper: https://arxiv.org/abs/1704.03477
 
 Dataset used for training is based on [Quickdraw-appendix](https://github.com/studiomoniker/Quickdraw-appendix).
 
-*__Media Coverage__*
+# Media Coverage
 
-[Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328) on dick-rnn: *“Mean Time To Dick is a key measure of any given human or machine intelligence system.”*
+*“Mean Time To Dick is a key measure of any given human or machine intelligence system.”*
+— [Elon Musk](https://twitter.com/elonmusk/status/1253834316242616328) on dick-rnn
 
 Reddit: dick-rnn discussions on [/r/MachineLearning](https://redd.it/g6og9l) and [r/javascript](https://redd.it/g6opsc).
 
